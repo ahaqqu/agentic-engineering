@@ -1,0 +1,41 @@
+{
+  "_purpose": "Lazy-load map: task archetype → single skill file. Open ONLY the matching file. Budget: this index <300 tokens, each skill <900 tokens.",
+  "version": 1,
+  "skills": {
+    "htmx-swap": {
+      "triggers": ["htmx", "fragment", "hx-post", "toggle", "row update", "swap"],
+      "file": ".opencode/skills/htmx-fragment-swap.md",
+      "status": "seed"
+    },
+    "d1-migration": {
+      "triggers": ["migration", "schema", "alter table", "d1", "sql"],
+      "file": ".opencode/skills/d1-migration.md",
+      "status": "seed"
+    },
+    "sso-auth": {
+      "triggers": ["login", "oauth", "google sso", "session", "cookie", "logout"],
+      "file": ".opencode/skills/sso-auth.md",
+      "status": "seed"
+    },
+    "kv-caching": {
+      "triggers": ["cache", "kv", "ttl", "slow fragment", "expensive query"],
+      "file": ".opencode/skills/kv-fragment-cache.md",
+      "status": "seed"
+    },
+    "mobile-capacitor": {
+      "triggers": ["capacitor", "ios", "android", "deep link", "webview", "mobile shell"],
+      "file": ".opencode/skills/mobile-capacitor.md",
+      "status": "seed"
+    },
+    "bdd-harness": {
+      "triggers": ["feature file", "cucumber", "playwright", "step definition", "flaky test"],
+      "file": ".opencode/skills/bdd-harness.md",
+      "status": "seed"
+    }
+  },
+  "meta": {
+    "blueprint": ".opencode/skills/template_blueprint.md",
+    "manager": ".opencode/skills/memory_manager.md",
+    "lessons": ".opencode/skills/lessons.md"
+  }
+}
