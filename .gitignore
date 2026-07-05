@@ -3,3 +3,9 @@ node_modules/
 .dev.vars
 *.log
 .lavish/
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+python_modules/
+-

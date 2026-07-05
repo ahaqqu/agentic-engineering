@@ -1,0 +1,46 @@
+[project]
+name = "agentic-engineering"
+version = "0.2.0"
+description = "AI-first application factory for FastAPI/Python + htmx on Cloudflare Workers."
+requires-python = ">=3.13"
+dependencies = [
+    "fastapi>=0.115.0",
+    "jinja2>=3.1.0",
+    "python-multipart>=0.0.9",
+]
+
+[dependency-groups]
+dev = [
+    "workers-py>=1.5.0",
+    "workers-runtime-sdk>=1.5.0",
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.24.0",
+    "pytest-bdd>=8.0.0",
+    "playwright>=1.50.0",
+    "httpx>=0.28.0",
+    "ruff>=0.7.0",
+    "pyright>=1.1.380",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py313"
+
+[tool.ruff.format]
+quote-style = "double"
+
+[tool.pyright]
+include = ["src", "features"]
+pythonVersion = "3.13"
+typeCheckingMode = "standard"
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["features"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
