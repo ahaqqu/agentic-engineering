@@ -1,0 +1,7 @@
+<ul id="item-list" class="space-y-2">
+  {% for item in items %}
+    {% include "item_row.html" %}
+  {% else %}
+    <li class="text-gray-500">No items yet.</li>
+  {% endfor %}
+</ul>

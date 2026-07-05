@@ -1,0 +1,12 @@
+<li id="item-{{ item.id }}" class="flex items-center gap-2 py-2" data-archived="{{ 'true' if item.archived else 'false' }}">
+  <span class="flex-1 {{ 'line-through opacity-50' if item.archived else '' }}">{{ item.title }}</span>
+  {% if item.archived %}
+    <span class="badge">archived</span>
+  {% endif %}
+  <button type="button" class="btn btn-sm"
+    hx-post="/items/{{ item.id }}/archive"
+    hx-target="#item-{{ item.id }}"
+    hx-swap="outerHTML">
+    {{ "Unarchive" if item.archived else "Archive" }}
+  </button>
+</li>
