@@ -195,29 +195,49 @@ $ pnpm run check        # biome: 2 files fixed, 0 diagnostics
 $ pnpm run typecheck    # 0 errors
 $ pnpm test             # 6 scenarios (6 passed), 24 steps (24 passed)
 $ # CODEMAP.md + PRD endpoint matrix updated; skill 'htmx-row-toggle' extracted
-$ gh pr create --base main --head item-archive-toggle --title 'feat(items): add archive toggle with htmx fragment swap' --body '## Summary
-Implement archive/unarchive toggle on items via htmx POST.
+$ gh pr create --base main --head item-archive-toggle \
+  --title 'feat(items): add archive toggle with htmx fragment swap' \
+  --body '## Summary
+Add archive/unarchive toggle on items so users can hide completed items without deleting them.
 
-## BDD proof
+## Architecture changes
+- `migrations/0002_items_archived.sql`: additive ALTER TABLE adding `archived INTEGER DEFAULT 0`
+- `src/routes/items.ts`: new POST route /items/:id/archive
+- `src/views/fragments/itemRow.tsx`: new htmx fragment for row swap
+
+## Functionality & behavioural changes with BDD proof
+Users see an Archive button on each item row. Clicking it toggles archived state
+via htmx POST; the row swaps in place with no page reload. Archived items show
+strikethrough text and a badge.
 - `pnpm run check` ✓ · `pnpm run typecheck` ✓
 - `pnpm test` — 6/6 scenarios passed, 24/24 steps passed
 
-## Files changed
-- `migrations/0002_items_archived.sql` — additive ALTER TABLE
-- `src/db/items.ts` — toggleArchive query fn
-- `src/views/fragments/itemRow.tsx` — fragment with hx-post/hx-swap
-- `src/routes/items.ts` — POST /:id/archive route
+## Security checklist
+- [x] Mutation route protected by requireSession + owner filter in UPDATE WHERE clause
+- [x] CSRF via global csrf() middleware (Origin check)
+- [x] No new cookies/secrets introduced
+- [x] IDOR blocked: UPDATE filters by user_id from session.sub
 
-## Check-in notes
-None triggered (additive schema, no new deps, no auth changes)
+## Performance checklist
+- [x] Single-row UPDATE with RETURNING — no unbounded datasets
+- [x] No per-request schema/constant construction
+- [x] No CPU-heavy transforms (simple toggle arithmetic)
+- [x] No KV writes added
 
-## Self-correction ledger
-none
+## Docs checklist
+- [x] CODEMAP.md updated
+- [x] PRD endpoint matrix updated
+- [x] Feature file written before implementation (BDD gate)
 
-## Skill extraction
-New skill: htmx-row-toggle
+## Manual test checklist
+NONE — all paths covered by BDD @api + @ui scenarios
 
-## Breaking changes?
-No'
+## Engineering flow changes
+- **Skill extraction:** htmx-row-toggle
+- **Self-correction ledger entries:** NONE
+
+## Limitations & warnings
+- NONE (additive schema, no new deps, no auth changes)
+'
 → https://github.com/org/repo/pull/42
 → Task complete.
