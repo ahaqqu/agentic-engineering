@@ -1,6 +1,6 @@
 # agentic-engineering
 
-AI-first application factory for Hono/TypeScript + htmx on Cloudflare Workers.
+AI-first application factory for FastAPI/Python + htmx on Cloudflare Workers.
 Generate, validate, and deploy hypermedia-driven PWAs — with AI agents writing 99% of the code.
 
 ---
@@ -12,11 +12,11 @@ Every feature follows the same deterministic loop. The agent plans, implements, 
 ### Quick start
 
 ```bash
-pnpm install
-pnpm exec wrangler d1 migrations apply DB --local
-pnpm exec playwright install chromium      # one-time
-pnpm dev                                    # http://localhost:8787
-pnpm test                                   # BDD suite vs wrangler dev
+uv sync
+uv run pywrangler d1 migrations apply DB --local
+uv run playwright install chromium      # one-time
+uv run pywrangler dev                    # http://localhost:8787
+uv run pytest                            # BDD suite vs pywrangler dev
 ```
 
 ### How to build a feature
@@ -43,7 +43,7 @@ pnpm test                                   # BDD suite vs wrangler dev
 - **No build step.** htmx + Alpine + Tailwind (via CDN or self-hosted static assets). No npm UI packages, no bundlers.
 - **No JSON-to-htmx.** State that survives refresh is owned by the server; ephemeral UI is Alpine. Never client stores, never SPA drift.
 - **No KV sessions.** HMAC-signed cookies only. KV is cache — eventually consistent (<60s).
-- **10ms CPU budget.** Paginate everything (LIMIT 50), fragment renders only, `db.batch()`, module-scope schemas.
+- **10ms CPU budget.** Paginate everything (LIMIT 50), fragment renders only, `db.batch()`, module-scope schemas/templates.
 
 ---
 
@@ -55,7 +55,7 @@ pnpm test                                   # BDD suite vs wrangler dev
 [Browser / Capacitor shell]
         │ htmx (AJAX) or full-page load
         ▼
-[Cloudflare Worker — Hono]
+[Cloudflare Worker — FastAPI/Python]
         ├── D1 (SQLite — source of truth)
         ├── KV (cache only — fragment HTML, JWKS)
         └── Static Assets (htmx.js, CSS, icons)
@@ -64,21 +64,22 @@ pnpm test                                   # BDD suite vs wrangler dev
 ### Prerequisites
 
 - Cloudflare account with Workers paid (or free) plan
-- D1 database created: `pnpm exec wrangler d1 create <db-name>`
-- Secrets set: `pnpm exec wrangler secret put SESSION_SECRET`
+- D1 database created: `uv run pywrangler d1 create <db-name>`
+- Secrets set: `uv run pywrangler secret put SESSION_SECRET`
 
 ### Deploy
 
 ```bash
-# Full quality-gated deploy (biome → tsc → BDD tests → D1 migrations → wrangler deploy)
+# Full quality-gated deploy (ruff → pyright → BDD tests → D1 migrations → pywrangler deploy)
 ./scripts/deploy.sh
 
 # Or step by step:
-pnpm check
-pnpm typecheck
-pnpm test                                             # requires wrangler dev running
-pnpm exec wrangler d1 migrations apply DB --remote    # prod D1
-pnpm exec wrangler deploy                             # prod worker
+uv run ruff check src/ features/
+uv run ruff format --check src/ features/
+uv run pyright
+uv run pytest                                             # requires pywrangler dev running
+uv run pywrangler d1 migrations apply DB --remote         # prod D1
+uv run pywrangler deploy                                  # prod worker
 ```
 
 The deploy script (`scripts/deploy.sh`) runs the exact same gates as CI. It auto-detects whether `CLOUDFLARE_API_TOKEN` or a local `wrangler login` session is available.
@@ -90,7 +91,7 @@ The deploy script (`scripts/deploy.sh`) runs the exact same gates as CI. It auto
 | `SESSION_SECRET` | `.dev.vars` (local) / `wrangler secret put` (prod) | 32-byte random hex |
 | `GOOGLE_CLIENT_ID` | same | from Google Cloud Console |
 | `GOOGLE_CLIENT_SECRET` | same | from Google Cloud Console |
-| `database_id` | `wrangler.toml` → `[[d1_databases]]` | UUID from `wrangler d1 create` |
+| `database_id` | `wrangler.toml` → `[[d1_databases]]` | UUID from `pywrangler d1 create` |
 
 ### CI/CD
 

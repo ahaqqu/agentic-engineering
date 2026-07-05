@@ -56,6 +56,11 @@
       "triggers": ["worker review", "best practice", "anti-pattern", "wrangler config", "bindings", "observability", "floating promise"],
       "file": ".opencode/skills/workers-best-practices/SKILL.md",
       "status": "seed"
+    },
+    "no-mistakes": {
+      "triggers": ["validate", "gate", "ship", "no-mistakes", "pipeline"],
+      "file": ".opencode/skills/no-mistakes.md",
+      "status": "seed"
     }
   },
   "meta": {
