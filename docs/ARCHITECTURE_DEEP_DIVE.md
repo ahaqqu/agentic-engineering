@@ -107,7 +107,7 @@ Design budget: **≤ 5ms CPU** per request. Enforcement patterns:
 - ❌ Use KV for sessions, counters, or anything requiring read-after-write consistency.
 - ❌ Use Node APIs (`fs`, `net`, `process.env` at runtime) — Workers runtime only.
   Config comes from `c.env` bindings.
-- ❌ Store secrets in code or `wrangler.toml` — Wrangler secrets / `.dev.vars` only.
+- ❌ Store secrets in code or `wrangler.toml` — `pywrangler secret put` / `.dev.vars` only.
 - ❌ Skip the `HX-Request` branch (breaks deep links) or swap more DOM than targeted.
 - ❌ Write `ALTER TABLE`/`DROP` migrations without human review (see ENGINEERING_FLOW §check-ins).
 - ❌ Hand-write code a vetted library already provides — but ask the human before adding

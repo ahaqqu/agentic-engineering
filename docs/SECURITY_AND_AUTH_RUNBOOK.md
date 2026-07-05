@@ -97,7 +97,7 @@ Shell composition (satisfies App Store Guideline 4.2 — not a bare remote wrapp
 |---|---|
 | Local dev | `.dev.vars` (gitignored) — read by `pywrangler dev` |
 | CI | GitHub Actions encrypted secrets → env |
-| Production | `wrangler secret put <NAME>` (or `pywrangler secret put`) |
+| Production | `pywrangler secret put <NAME>` |
 
 Required secrets: `SESSION_SECRET` (32B random), `GOOGLE_CLIENT_ID`,
 `GOOGLE_CLIENT_SECRET`. Test-only: `TEST_SESSION_SECRET` (never set in production).

@@ -82,13 +82,13 @@ uv run pywrangler d1 migrations apply DB --remote         # prod D1
 uv run pywrangler deploy                                  # prod worker
 ```
 
-The deploy script (`scripts/deploy.sh`) runs the exact same gates as CI. It auto-detects whether `CLOUDFLARE_API_TOKEN` or a local `wrangler login` session is available.
+The deploy script (`scripts/deploy.sh`) runs the exact same gates as CI. It auto-detects whether `CLOUDFLARE_API_TOKEN` or a local `pywrangler login` session is available.
 
 ### Environment configuration
 
 | Setting | Where | Example |
 |---|---|---|
-| `SESSION_SECRET` | `.dev.vars` (local) / `wrangler secret put` (prod) | 32-byte random hex |
+| `SESSION_SECRET` | `.dev.vars` (local) / `pywrangler secret put` (prod) | 32-byte random hex |
 | `GOOGLE_CLIENT_ID` | same | from Google Cloud Console |
 | `GOOGLE_CLIENT_SECRET` | same | from Google Cloud Console |
 | `database_id` | `wrangler.toml` → `[[d1_databases]]` | UUID from `pywrangler d1 create` |

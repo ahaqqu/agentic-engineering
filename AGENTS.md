@@ -14,7 +14,7 @@ self-hosted static, NO frontend build/UI deps. Sessions = HMAC-signed cookies
    Never JSON-to-htmx, never client stores, never SPA drift.
 4. Every mutation route: session middleware + `csrf_check()` + Pydantic validator + owner filter
    (`WHERE ... session.sub`). Fragments branch on `HX-Request` for deep links.
-5. No Node APIs at runtime; env via `c.env`. Secrets via wrangler secrets/`.dev.vars`,
+5. No Node APIs at runtime; env via `c.env`. Secrets via `pywrangler secret put`/`.dev.vars`,
    never code or wrangler.toml.
 6. No unit tests. Verification = pytest-bdd + Playwright vs `pywrangler dev` only.
    Never hand-format; `ruff check --fix` owns style.
