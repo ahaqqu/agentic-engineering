@@ -212,25 +212,26 @@ strikethrough text and a badge.
 - `pnpm run check` ✓ · `pnpm run typecheck` ✓
 - `pnpm test` — 6/6 scenarios passed, 24/24 steps passed
 
-## Security checklist
-- [x] Mutation route protected by requireSession + owner filter in UPDATE WHERE clause
-- [x] CSRF via global csrf() middleware (Origin check)
-- [x] No new cookies/secrets introduced
-- [x] IDOR blocked: UPDATE filters by user_id from session.sub
+## Security review
+- POST /items/:id/archive is gated by requireSession + owner filter inside the
+  UPDATE WHERE clause (WHERE id = ? AND user_id = ?) — no IDOR possible
+- CSRF covered by global csrf() middleware checking Origin header
+- No new cookies, secrets, or env vars introduced
 
-## Performance checklist
-- [x] Single-row UPDATE with RETURNING — no unbounded datasets
-- [x] No per-request schema/constant construction
-- [x] No CPU-heavy transforms (simple toggle arithmetic)
-- [x] No KV writes added
+## Performance review
+- Single-row UPDATE with RETURNING — always O(1), no unbounded datasets
+- No per-request schema/constant construction (module-scoped Zod schemas)
+- No CPU-heavy transforms (toggle is simple integer arithmetic)
+- No KV writes added
 
-## Docs checklist
-- [x] CODEMAP.md updated
-- [x] PRD endpoint matrix updated
-- [x] Feature file written before implementation (BDD gate)
+## Docs review
+- CODEMAP.md updated with new route and fragment entries
+- PRD endpoint matrix updated
+- Feature file written before implementation (BDD gate satisfied)
 
-## Manual test checklist
-NONE — all paths covered by BDD @api + @ui scenarios
+## Manual test needed
+NONE — all paths covered by BDD @api + @ui scenarios (create, archive,
+unauthenticated rejection, non-member rejection, refresh survival)
 
 ## Engineering flow changes
 - **Skill extraction:** htmx-row-toggle

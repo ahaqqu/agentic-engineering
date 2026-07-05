@@ -26,18 +26,20 @@ Scope: the resource/route touched (e.g. `items`, `auth`, `d1`, `ci`)
      `pnpm run check` ✓ · `pnpm run typecheck` ✓
      `pnpm test` — {N}/{N} scenarios passed, {M}/{M} steps passed -->
 
-## Security checklist
-- [ ] Is every mutation route protected by session + owner filter?
-- [ ] Are CSRF checks in place for POST routes?
-- [ ] Are new secrets/cookies HttpOnly + Secure + SameSite?
-- [ ] Are there any new environment variables that need wrangler secrets?
-- [ ] Could this change introduce an IDOR? (every D1 query filters by session.sub?)
+## Security review
+<!-- Think about what this change means for security. Consider: session guards,
+     CSRF, cookie properties, new env vars, IDOR potential, data exposure in
+     fragments, auth bypass scenarios. Write relevant items — not a template. -->
+- <!-- e.g. "POST /items/:id/archive is gated by requireSession + owner filter
+        in the UPDATE WHERE clause → no IDOR" -->
+- <!-- e.g. "No new cookies or secrets introduced" -->
 
-## Performance checklist
-- [ ] Do any htmx fragments load unbounded datasets? (must paginate LIMIT 50)
-- [ ] Is there any per-request construction of schemas/constants? (must be module scope)
-- [ ] Any CPU-heavy transforms (markdown, image, big JSON)?
-- [ ] Any KV writes added? (free tier: 1k/day)
+## Performance review
+<!-- Think about what this change means for performance. Consider: pagination,
+     per-request allocation vs module scope, CPU-heavy transforms, KV cache
+     opportunities, D1 query patterns, fragment size. Write relevant items. -->
+- <!-- e.g. "Single-row UPDATE with RETURNING — no unbounded datasets" -->
+- <!-- e.g. "No KV writes added (free tier: 1k/day)" -->
 
 ## Docs checklist
 - [ ] CODEMAP.md updated?
@@ -62,7 +64,9 @@ Scope: the resource/route touched (e.g. `items`, `auth`, `d1`, `ci`)
 2. Run `git log --oneline {base_branch}..HEAD` for commit context.
 3. Run `git diff {base_branch}..HEAD --stat` for awareness (not included in PR body).
 4. Read `lessons.md` for any new entries from this task.
-5. Walk each checklist mentally (do not include unchecked items — only check what's verified).
+5. Analyze security and performance implications of the actual changes — write
+   specific items, not generic checklist boilerplate. Every item must be a
+   statement about this specific change, not a question from a template.
 6. Assemble the PR body from the template above.
 7. Create PR: `gh-axi pr create` (or `gh pr create` fallback).
 
