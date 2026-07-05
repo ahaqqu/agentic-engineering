@@ -1,0 +1,17 @@
+name = "agentic-engineering-template"
+main = "src/index.tsx"
+compatibility_date = "2026-06-01"
+
+# Static assets (self-hosted htmx/css) are served before the worker runs.
+[assets]
+directory = "public"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "app-db"
+# Placeholder for local dev; replace with the real id from `wrangler d1 create app-db`
+# before the first production deploy.
+database_id = "00000000-0000-0000-0000-000000000000"
+
+# Secrets (SESSION_SECRET, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET) are NEVER set here.
+# Local: .dev.vars · Production: wrangler secret put <NAME>

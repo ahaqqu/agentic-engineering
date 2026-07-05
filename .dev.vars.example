@@ -1,0 +1,2 @@
+# Copy to .dev.vars for local dev + tests. NEVER commit real secrets.
+SESSION_SECRET=test-secret-do-not-use-in-prod
