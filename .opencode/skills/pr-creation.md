@@ -23,8 +23,9 @@ Scope: the resource/route touched (e.g. `items`, `auth`, `d1`, `ci`)
 
 ## Functionality & behavioural changes with BDD proof
 <!-- what behavior changed from the user's perspective. then the proof:
-     `pnpm run check` ✓ · `pnpm run typecheck` ✓
-     `pnpm test` — {N}/{N} scenarios passed, {M}/{M} steps passed -->
+     `uv run ruff check src/ features/` ✓ · `uv run ruff format --check src/ features/` ✓
+     `uv run pyright` ✓
+     `uv run pytest` — {N}/{N} scenarios passed, {M}/{M} steps passed -->
 
 ## Security review
 <!-- Think about what this change means for security. Consider: session guards,

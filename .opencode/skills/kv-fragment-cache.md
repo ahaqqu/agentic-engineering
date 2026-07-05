@@ -5,18 +5,19 @@ Expensive fragment identical for many users (stats, public lists). NOT for perso
 fragments, sessions, or anything needing read-after-write. Free tier: 1k KV writes/day.
 
 ## Pattern
-```ts
-// lib/cache.ts
-export async function cachedFragment(
-  kv: KVNamespace, key: string, ttl: number, render: () => Promise<string>,
-): Promise<string> {
-  const hit = await kv.get(key);
-  if (hit !== null) return hit;
-  const html = await render();
-  await kv.put(key, html, { expirationTtl: ttl });
-  return html;
-}
-// usage: c.html(await cachedFragment(c.env.CACHE, `frag:stats:global`, 300, renderStats))
+```python
+# src/lib/cache.py
+async def cached_fragment(
+    kv: KVNamespace, key: str, ttl: int, render: Callable[[], Awaitable[str]],
+) -> str:
+    hit = await kv.get(key)
+    if hit is not None:
+        return hit
+    html = await render()
+    await kv.put(key, html, expiration_ttl=ttl)
+    return html
+
+# usage: return HTMLResponse(await cached_fragment(c.env.CACHE, "frag:stats:global", 300, render_stats))
 ```
 
 ## Proof

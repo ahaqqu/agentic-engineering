@@ -23,8 +23,8 @@ Before reviewing or writing Workers code, retrieve the current best practices pa
 ```bash
 # Fetch latest workers types
 mkdir -p /tmp/workers-types-latest && \
-  npm pack @cloudflare/workers-types --pack-destination /tmp/workers-types-latest && \
-  tar -xzf /tmp/workers-types-latest/cloudflare-workers-types-*.tgz -C /tmp/workers-types-latest
+  curl -sL "https://registry.npmjs.org/@cloudflare/workers-types/latest" -o /tmp/workers-types-latest/package.tgz && \
+  tar -xzf /tmp/workers-types-latest/package.tgz -C /tmp/workers-types-latest
 # Types at /tmp/workers-types-latest/package/index.d.ts
 ```
 

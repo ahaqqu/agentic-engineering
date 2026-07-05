@@ -10,17 +10,18 @@
 ## Context (≤3 lines)
 When to use. When NOT to use. Boundary-matrix side (htmx/Alpine/server-only).
 
-## Contract (Zod)
-```ts
-// exact input schema, module-scope
-const Params = z.object({ id: z.coerce.number() });
+## Contract (Pydantic)
+```python
+# exact input schema, module-scope
+class Params(BaseModel):
+    item_id: int
 ```
 
-## Pattern (minimum viable slice: db → fragment → route)
-```ts
-// db/: RETURNING-style single statement, owner-filtered via session.sub
-// views/fragments/: JSX fragment w/ stable DOM id for hx-target
-// routes/: zValidator → db fn → c.html(<Fragment/>) ; notFound() on null
+## Pattern (minimum viable slice: db → template → route)
+```python
+# db/: RETURNING-style single statement, owner-filtered via session.sub
+# templates/: Jinja2 fragment w/ stable DOM id for hx-target
+# routes/: Depends(validate) → db fn → TemplateResponse(fragment); HTTPException on null
 ```
 (Compress: include ONLY the lines that carry the pattern; elide boilerplate with `…`.)
 

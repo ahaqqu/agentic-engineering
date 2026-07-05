@@ -2,16 +2,22 @@
 
 ## Context
 Writing/fixing feature files, steps, hooks, or flaky runs. Tests run against
-`wrangler dev` (workerd) only — never a Node shim. No unit tests exist.
+`pywrangler dev` (workerd) only — no Node shim. No unit tests exist.
 
 ## Pattern
-```ts
-// features/support/hooks.ts
-BeforeAll: execSync("wrangler d1 migrations apply DB --local")
-           devProc = spawn("wrangler", ["dev", "--port", "8787"])
-           await pollUntil200(`${baseURL}/health`, 30_000)
-Before:    await resetDb()   // delete+seed via wrangler d1 execute --local
-AfterAll:  devProc.kill()
+```python
+# features/conftest.py
+@pytest.fixture(scope="session", autouse=True)
+def pywrangler_dev():
+    subprocess.run(["uv", "run", "pywrangler", "d1", "migrations", "apply", "DB", "--local"])
+    proc = subprocess.Popen(["uv", "run", "pywrangler", "dev", "--port", "8787"])
+    poll_until_200("http://localhost:8787/health", timeout=30)
+    yield
+    proc.kill()
+
+@pytest.fixture(autouse=True)
+async def reset_db():
+    await db_execute("DELETE FROM items")  # via pywrangler d1 execute --local
 
 // auth bypass = cookie injection (NO mock routes):
 // api steps → headers: { cookie: await signedInCookie(email), origin: baseURL }
@@ -21,7 +27,7 @@ AfterAll:  devProc.kill()
 ```
 
 ## Proof
-Self-proving: the harness IS the gate (`npm test` green in CI job `quality`).
+Self-proving: the harness IS the gate (`uv run pytest` green in CI job `quality`).
 
 ## Gotchas
 - htmx POST steps must send `origin` header or global `csrf()` rejects with 403.

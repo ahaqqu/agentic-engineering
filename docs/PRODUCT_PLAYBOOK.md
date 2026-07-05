@@ -54,7 +54,7 @@ Migration file: migrations/000X_<name>.sql   (breaking change? → human review 
 (NONE is a valid and common answer — KV writes are scarce on free tier.)
 
 ## 4. Endpoint Specification Matrix
-| Route | Method | Triggering htmx attr | Input (Zod) | Output fragment | Auth |
+| Route | Method | Triggering htmx attr | Input (Pydantic) | Output fragment | Auth |
 |---|---|---|---|---|---|
 | /items | GET | hx-get (load, pagination) | ListQuery{page} | fragments/itemList | session |
 | /items/:id/archive | POST | hx-post on toggle btn | Param{id} | fragments/itemRow | session+owner |
@@ -116,7 +116,7 @@ Non-Goal). Success: a two-person household runs groceries on it for a week.
 | list_members | list_id, member_sub | — | composite PK; IDX(member_sub) |
 | items | id | INTEGER | PK AUTOINCREMENT |
 | items | list_id | INTEGER | NOT NULL, IDX |
-| items | title | TEXT | NOT NULL, len ≤ 200 (Zod) |
+| items | title | TEXT | NOT NULL, len ≤ 200 (Pydantic) |
 | items | done | INTEGER | NOT NULL DEFAULT 0 |
 | items | archived | INTEGER | NOT NULL DEFAULT 0 |
 | items | created_by | TEXT | NOT NULL |
@@ -127,7 +127,7 @@ Migration: `migrations/0001_init.sql`
 
 **4. Endpoint Specification Matrix**
 
-| Route | Method | htmx trigger | Input (Zod) | Output | Auth |
+| Route | Method | htmx trigger | Input (Pydantic) | Output | Auth |
 |---|---|---|---|---|---|
 | / | GET | — (full page) | — | pages/lists | session |
 | /lists | POST | hx-post form | `{title: string.min(1).max(80)}` | fragments/listCard | session |

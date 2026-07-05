@@ -4,31 +4,40 @@
 Any state change that must survive refresh: toggle/edit/delete on a row or card.
 NOT for ephemeral UI (modals, tabs → Alpine).
 
-## Contract (Zod)
-```ts
-const Params = z.object({ id: z.coerce.number() }); // module scope
+## Contract (Pydantic)
+```python
+# module scope
+class ArchiveParams(BaseModel):
+    item_id: int
 ```
 
 ## Pattern
-```tsx
-// views/fragments/itemRow.tsx — stable DOM id = swap anchor
-<li id={`item-${item.id}`} data-archived={String(!!item.archived)}>
+```html
+{# templates/item_row.html — stable DOM id = swap anchor #}
+<li id="item-{{ item.id }}" data-archived="{{ 'true' if item.archived else 'false' }}">
   …
-  <button class="btn btn-ghost btn-xs" hx-post={`/items/${item.id}/archive`}
-          hx-target={`#item-${item.id}`} hx-swap="outerHTML">…</button>
+  <button class="btn btn-sm" hx-post="/items/{{ item.id }}/archive"
+          hx-target="#item-{{ item.id }}" hx-swap="outerHTML">…</button>
 </li>
+```
 
-// db/items.ts — single UPDATE, owner-filtered, RETURNING *
+```python
+# db/items.py — single UPDATE, owner-filtered, RETURNING *
 UPDATE items SET archived = 1 - archived
- WHERE id = ?1 AND list_id IN (SELECT list_id FROM list_members WHERE member_sub = ?2)
+ WHERE id = ? AND sub = ?
  RETURNING *
 
-// routes/items.ts
-items.post("/:id/archive", zValidator("param", Params), async (c) => {
-  const item = await toggleArchive(c.env.DB, c.req.valid("param").id, c.get("session").sub);
-  if (!item) return c.notFound();          // covers foreign-owner IDOR too
-  return c.html(<ItemRow item={item} />);  // fragment, never JSON
-});
+# routes/items.py
+@router.post("/items/{item_id:int}/archive")
+async def archive_item(
+    item_id: int,
+    session: Session = Depends(require_session),
+    db: D1Database = Depends(get_db),
+):
+    item = await toggle_archive(db, item_id, session.sub)
+    if not item:
+        raise HTTPException(status_code=404)  # covers foreign-owner IDOR too
+    return templates.TemplateResponse("item_row.html", {"item": item})  # fragment, never JSON
 ```
 
 ## Proof

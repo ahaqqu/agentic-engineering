@@ -3,7 +3,7 @@
 > Operational directive for workspace self-improvement. Runs at defined triggers, not
 > continuously. Objective: get smarter every task while total memory stays cheap.
 
-## Trigger 1 — BDD Skill Extraction (fires on every 100% green `npm test` in Phase 4)
+## Trigger 1 — BDD Skill Extraction (fires on every 100% green `uv run pytest` in Phase 4)
 
 1. Ask: does this feature embody a REUSABLE archetype (not app-specific business logic)?
    - No → stop. Do not hoard.

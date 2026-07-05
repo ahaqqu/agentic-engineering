@@ -5,19 +5,20 @@ Login/logout/session/guards. Auth changes ALWAYS require the human gate (AGENTS.
 Sessions = stateless HMAC-signed cookies. KV sessions are forbidden.
 
 ## Pattern
-```ts
-// lib/session.ts owns: makeSessionCookie(payload, secret), verifySession(c)
-// cookie: HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=7d; rolling refresh >24h
-// payload: { sub, email, name, iat, exp }  — keep <1KB
+```python
+# src/lib/session.py owns: make_session_cookie(payload, secret), verify_session(request)
+# cookie: HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=7d; rolling refresh >24h
+# payload: { sub, email, name, iat, exp }  — keep <1KB
 
-// route guard
-app.use("/app/*", requireSession); // browser: 302 /auth/login
-                                   // htmx (HX-Request): 401 + HX-Redirect header
-// global: app.use(csrf())          — Origin check; htmx sends Origin on POST
+# route guard — middleware
+app.middleware("http")(session_middleware)
+# /app/* guarded by require_session dependency: browser 302 /auth/login,
+#                                       htmx (HX-Request): 401 + HX-Redirect header
+# global csrf_check() dependency — Origin check; htmx sends Origin on POST
 
-// flow: GET /auth/login → Google (state nonce in 5min signed cookie)
-//       GET /auth/callback → verify state → exchange code → verify ID token (JWKS
-//       cached in KV 6h) → upsert users → set cookie → 302 /
+# flow: GET /auth/login → Google (state nonce in 5min signed cookie)
+#       GET /auth/callback → verify state → exchange code → verify ID token (JWKS
+#       cached in KV 6h) → upsert users → set cookie → 302 /
 ```
 
 ## Proof
@@ -28,6 +29,6 @@ app.use("/app/*", requireSession); // browser: 302 /auth/login
 
 ## Gotchas
 - Tests NEVER hit Google: inject cookie signed with the env's SESSION_SECRET
-  (features/support/auth.ts). No mock routes may exist.
+  (features/conftest.py). No mock routes may exist.
 - Mobile: OAuth in system browser only; deep-link one-time code exchange (runbook §3).
 - Support SESSION_SECRET_PREV dual-verify during rotation.

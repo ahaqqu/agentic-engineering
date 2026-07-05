@@ -40,7 +40,7 @@ uv run pytest                            # BDD suite vs pywrangler dev
 
 ### Stack constraints (agent-enforced)
 
-- **No build step.** htmx + Alpine + Tailwind (via CDN or self-hosted static assets). No npm UI packages, no bundlers.
+- **No build step.** htmx + Alpine + Tailwind (via CDN or self-hosted static assets). No UI package dependencies, no bundlers.
 - **No JSON-to-htmx.** State that survives refresh is owned by the server; ephemeral UI is Alpine. Never client stores, never SPA drift.
 - **No KV sessions.** HMAC-signed cookies only. KV is cache — eventually consistent (<60s).
 - **10ms CPU budget.** Paginate everything (LIMIT 50), fragment renders only, `db.batch()`, module-scope schemas/templates.

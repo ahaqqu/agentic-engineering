@@ -102,7 +102,7 @@ Design budget: **≤ 5ms CPU** per request. Enforcement patterns:
 
 ## 6. Anti-Patterns — agents must NEVER
 
-- ❌ Add React/Vue/Svelte, a bundler for the frontend, npm UI packages, or client routers.
+- ❌ Add React/Vue/Svelte, a bundler for the frontend, any UI package manager dependencies, or client routers.
 - ❌ Return JSON to htmx and rebuild HTML client-side.
 - ❌ Use KV for sessions, counters, or anything requiring read-after-write consistency.
 - ❌ Use Node APIs (`fs`, `net`, `process.env` at runtime) — Workers runtime only.

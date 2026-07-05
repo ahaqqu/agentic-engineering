@@ -7,8 +7,8 @@ Any schema change. Additive = autonomous. ALTER/DROP of existing data = STOP, hu
 ```bash
 # next number, descriptive slug
 migrations/000X_<slug>.sql
-npm run db:migrate:local            # apply before Phase 2 test run
-# prod applied by CI: wrangler d1 migrations apply DB --remote
+uv run pywrangler d1 migrations apply DB --local  # apply before Phase 2 test run
+# prod applied by CI: uv run pywrangler d1 migrations apply DB --remote
 ```
 ```sql
 -- additive-safe shapes (no human gate needed):

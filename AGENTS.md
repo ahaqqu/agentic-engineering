@@ -2,7 +2,7 @@
 
 Stack: FastAPI/Python + Jinja2 + Pydantic on Cloudflare Workers. D1 (SQL truth),
 KV (cache ONLY — never sessions/truth). htmx 2 + Alpine 3 + Tailwind 4 + daisyUI 5,
-self-hosted static, NO frontend build/npm UI deps. Sessions = HMAC-signed cookies
+self-hosted static, NO frontend build/UI deps. Sessions = HMAC-signed cookies
 (HttpOnly/Secure/Lax). Capacitor bundled shell; OAuth via system browser only.
 
 ## Hard constraints
