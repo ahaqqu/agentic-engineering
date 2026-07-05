@@ -62,8 +62,16 @@ human check-in (see §3) before proceeding.
 > On ANY failure run the Self-Correction Loop (§2). When green: refactor for pattern
 > quality (no logic in routes, module-scope hoisting, boundary matrix respected) and
 > re-run the gate. Then update `CODEMAP.md` and the PRD, and execute the skill-extraction
-> trigger in `.opencode/skills/memory_manager.md`. Only then declare the task complete
-> and hand the worktree back for human review/merge.
+> trigger in `.opencode/skills/memory_manager.md`.
+>
+> **Final step: create a pull request.** Load the `pr-creation` skill
+> (`.opencode/skills/pr-creation.md`) and follow its PR template exactly. The PR title
+> must follow `type(scope): summary` (72 char max). The PR body must include BDD proof
+> (scenario counts), check-in notes (any gates triggered), and self-correction entries.
+> Use `gh-axi pr create` when available, or `gh pr create` as fallback.
+>
+> **Gate:** PR is created, full-gate evidence is in the PR body. Only then declare the
+> task complete.
 
 ## 2. The Self-Correction Loop (max 3 attempts)
 
@@ -187,5 +195,29 @@ $ pnpm run check        # biome: 2 files fixed, 0 diagnostics
 $ pnpm run typecheck    # 0 errors
 $ pnpm test             # 6 scenarios (6 passed), 24 steps (24 passed)
 $ # CODEMAP.md + PRD endpoint matrix updated; skill 'htmx-row-toggle' extracted
-→ Task complete. Worktree item-archive-toggle ready for review.
-```
+$ gh pr create --base main --head item-archive-toggle --title 'feat(items): add archive toggle with htmx fragment swap' --body '## Summary
+Implement archive/unarchive toggle on items via htmx POST.
+
+## BDD proof
+- `pnpm run check` ✓ · `pnpm run typecheck` ✓
+- `pnpm test` — 6/6 scenarios passed, 24/24 steps passed
+
+## Files changed
+- `migrations/0002_items_archived.sql` — additive ALTER TABLE
+- `src/db/items.ts` — toggleArchive query fn
+- `src/views/fragments/itemRow.tsx` — fragment with hx-post/hx-swap
+- `src/routes/items.ts` — POST /:id/archive route
+
+## Check-in notes
+None triggered (additive schema, no new deps, no auth changes)
+
+## Self-correction ledger
+none
+
+## Skill extraction
+New skill: htmx-row-toggle
+
+## Breaking changes?
+No'
+→ https://github.com/org/repo/pull/42
+→ Task complete.

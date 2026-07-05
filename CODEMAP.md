@@ -50,6 +50,7 @@ memory + verified Hono/htmx app skeleton for a suite of Cloudflare Workers apps.
 | .opencode/skills/kv-fragment-cache.md | Seed skill: TTL fragment cache, poisoning guards |
 | .opencode/skills/mobile-capacitor.md | Seed skill: bundled shell, deep-link OAuth handoff |
 | .opencode/skills/bdd-harness.md | Seed skill: hooks, cookie-injection bypass, flake fixes |
+| .opencode/skills/pr-creation.md | PR skill: standardized format (type(scope): summary), BDD proof in body, check-in notes |
 
 ## Config root files
 | Path | Purpose |

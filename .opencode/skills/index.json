@@ -31,6 +31,11 @@
       "triggers": ["feature file", "cucumber", "playwright", "step definition", "flaky test"],
       "file": ".opencode/skills/bdd-harness.md",
       "status": "seed"
+    },
+    "pr-creation": {
+      "triggers": ["pull request", "pr", "merge", "review", "ship", "submit code"],
+      "file": ".opencode/skills/pr-creation.md",
+      "status": "proven"
     }
   },
   "meta": {

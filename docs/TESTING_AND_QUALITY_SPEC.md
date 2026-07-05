@@ -156,3 +156,5 @@ jobs:
 4. Feature file exists and predates the implementation (BDD gate).
 5. Docs updated: `CODEMAP.md` entry + PRD endpoint matrix row (principle #4).
 6. If all green → extract skill per `.opencode/skills/memory_manager.md`.
+7. **PR created** per `.opencode/skills/pr-creation.md` — PR body includes all BDD
+   proof, check-in notes, and self-correction ledger entries.
