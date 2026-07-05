@@ -1,12 +1,12 @@
 # SECURITY_AND_AUTH_RUNBOOK.md
 
 > How identity, sessions, and secrets work in every app built from this template.
-> AI agents: implement auth ONLY through `lib/session.ts`, `lib/csrf.ts`, `lib/oauth.ts`.
+> AI agents: implement auth ONLY through `src/lib/session.py`, `src/lib/csrf.py`.
 
 ## 1. Session Model — Stateless Signed Cookies
 
-**Decision:** sessions are HMAC-SHA256-signed cookies (WebCrypto via Hono's signed-cookie
-helpers). No KV sessions (eventual consistency makes logout/permission changes lag ≤60s).
+**Decision:** sessions are HMAC-SHA256-signed cookies (Python stdlib via `hmac` + `hashlib`).
+No KV sessions (eventual consistency makes logout/permission changes lag ≤60s).
 No D1 session reads (costs CPU/IO budget on every request).
 
 Cookie payload (kept < 1KB):
@@ -30,9 +30,25 @@ Revocation strategy for stateless sessions: short exp + rolling refresh. For har
 cases, keep a tiny D1 `revoked_subs` table checked **only** on refresh, not per request.
 
 ### CSRF (required — SameSite=Lax is not sufficient alone)
-Use Hono's `csrf()` middleware globally: it rejects state-changing requests whose
-`Origin`/`Sec-Fetch-Site` doesn't match. htmx sends `Origin` on POST automatically.
+Use a FastAPI dependency globally on mutation routes: it rejects state-changing requests
+whose `Origin` doesn't match the request `Host`. htmx sends `Origin` on POST automatically.
 No hidden-token plumbing needed; do NOT roll a custom token system.
+
+```python
+# src/lib/csrf.py
+from fastapi import Request, HTTPException
+
+
+async def csrf_check(request: Request):
+    if request.method in ("GET", "HEAD", "OPTIONS"):
+        return
+    origin = request.headers.get("Origin")
+    if not origin:
+        raise HTTPException(status_code=403, detail="CSRF: missing Origin")
+    host = request.headers.get("Host", "")
+    if origin not in [f"http://{host}", f"https://{host}"]:
+        raise HTTPException(status_code=403, detail="CSRF: Origin mismatch")
+```
 
 ## 2. Google SSO Lifecycle — Web
 
@@ -50,7 +66,7 @@ Server-side authorization-code flow. No client-side Google JS SDK.
 6. GET /auth/logout     → clear cookie → 302 to "/"
 ```
 
-Route guard: `requireSession` middleware. Browser requests → 302 `/auth/login`;
+Route guard: `require_session` dependency. Browser requests → 302 `/auth/login`;
 htmx requests (`HX-Request: true`) → `HX-Redirect: /auth/login` header with 401.
 
 ## 3. Google SSO Lifecycle — Capacitor Mobile (bundled shell)
@@ -79,9 +95,9 @@ Shell composition (satisfies App Store Guideline 4.2 — not a bare remote wrapp
 
 | Environment | Mechanism |
 |---|---|
-| Local dev | `.dev.vars` (gitignored) — read by `wrangler dev` |
+| Local dev | `.dev.vars` (gitignored) — read by `pywrangler dev` |
 | CI | GitHub Actions encrypted secrets → env |
-| Production | `wrangler secret put <NAME>` |
+| Production | `wrangler secret put <NAME>` (or `pywrangler secret put`) |
 
 Required secrets: `SESSION_SECRET` (32B random), `GOOGLE_CLIENT_ID`,
 `GOOGLE_CLIENT_SECRET`. Test-only: `TEST_SESSION_SECRET` (never set in production).
@@ -101,9 +117,9 @@ between test and production; nothing mock ships in the deploy artifact.
 
 ## 6. Threat Checklist (verify per feature, per PRD)
 
-- [ ] XSS: JSX escapes by default — `dangerouslySetInnerHTML`/`raw()` is forbidden
+- [ ] XSS: Jinja2 escapes by default — `{{ value|safe }}` is forbidden
       without human sign-off.
-- [ ] CSRF: global `csrf()` middleware present; new POST routes covered.
+- [ ] CSRF: global `csrf_check` dependency present; new POST routes covered.
 - [ ] IDOR: every D1 query on user data filters by `session.sub` — no bare `WHERE id=?`.
 - [ ] Open redirect: `/auth/*` redirects only to same-origin paths or the app scheme.
 - [ ] Cache poisoning: KV fragment keys must include every variable that changes output

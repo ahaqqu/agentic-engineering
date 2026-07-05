@@ -8,29 +8,22 @@
 
 | Concern | Tool | Command |
 |---|---|---|
-| Lint + format | Biome | `pnpm run check` → `biome check --write .` |
-| Types | TypeScript strict | `pnpm run typecheck` → `tsc --noEmit` |
-| BDD runner | @cucumber/cucumber | `pnpm test` → `cucumber-js` |
+| Lint | Ruff | `uv run ruff check src/ features/` |
+| Format | Ruff | `uv run ruff format --check src/ features/` |
+| Autofix | Ruff | `uv run ruff check --fix src/ features/` |
+| Types | Pyright | `uv run pyright` |
+| BDD runner | pytest-bdd | `uv run pytest` |
 | Browser | Playwright (chromium, headless) | driven from step definitions |
-| System under test | `wrangler dev` (workerd — the real runtime) | started by test hooks |
-| Deploy | `wrangler deploy` | CI only |
+| System under test | `pywrangler dev` (workerd — the real runtime) | started by conftest.py |
+| Deploy | `pywrangler deploy` | CI only |
 
-`package.json` scripts (canonical — **pnpm is the only supported package manager**;
-pin it via the `packageManager` field + corepack):
+uv is the canonical package manager. Run everything through `uv run`.
 
-```json
-{
-  "packageManager": "pnpm@10.13.1",
-  "scripts": {
-    "dev": "wrangler dev",
-    "check": "biome check --write .",
-    "typecheck": "tsc --noEmit",
-    "test": "cucumber-js",
-    "db:migrate:local": "wrangler d1 migrations apply DB --local",
-    "db:migrate:prod": "wrangler d1 migrations apply DB --remote",
-    "deploy": "wrangler deploy"
-  }
-}
+```toml
+# pyproject.toml scripts (canonical)
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["features"]
 ```
 
 ## 2. Test Architecture
@@ -39,16 +32,12 @@ pin it via the `packageManager` field + corepack):
 features/
 ├── items_archive.feature          # Gherkin — written BEFORE any code (BDD gate)
 ├── steps/
-│   ├── api.steps.ts               # fetch()-level steps: status, fragment content
-│   └── ui.steps.ts                # Playwright steps: real clicks, DOM assertions
-└── support/
-    ├── world.ts                   # custom World: baseURL, browser page, api client
-    └── hooks.ts                   # BeforeAll: migrate local D1 + seed + start wrangler dev
-                                   # Before: reset data; After: teardown
+│   └── test_items_archive.py      # pytest-bdd step definitions: API + UI steps
+└── conftest.py                    # fixtures: pywrangler dev lifecycle, browser, cookies
 ```
 
-Two step layers, one feature file. `@api` scenarios assert over-the-wire HTML fragments
-(fast); `@ui` scenarios assert real browser behavior through htmx swaps (truth).
+All scenarios use either `@api` (assert HTML fragments over HTTP) or `@ui` (assert real
+browser behaviour through htmx swaps). pytest-bdd supports these as module-level markers.
 
 ## 3. Gherkin Boilerplate (reference shape)
 
@@ -78,36 +67,46 @@ Feature: Archive items
 
 `.dev.vars` (local + CI): `SESSION_SECRET=test-secret-do-not-use-in-prod`
 
-```ts
-// features/support/auth.ts — signs a cookie EXACTLY like lib/session.ts does
-import { makeSessionCookie } from "../../src/lib/session";
+```python
+# features/conftest.py — signs a cookie EXACTLY like src/lib/session.py does
+from src.lib.session import sign_token, make_payload
 
-export async function signedInCookie(email: string): Promise<string> {
-  return makeSessionCookie(
-    { sub: `test-${email}`, email, name: "Test User" },
-    "test-secret-do-not-use-in-prod",
-  );
-}
+
+def signed_cookie(email: str) -> str:
+    payload = make_payload(f"test-{email}", email, "Test User")
+    return sign_token(payload, "test-secret-do-not-use-in-prod")
 ```
 
 - API steps: send the cookie in the `Cookie` header.
-- UI steps: `await context.addCookies([...])` before `page.goto()`.
+- UI steps: `await context.add_cookies([...])` before `page.goto()`.
 - Production is unaffected: same code path, different secret, no test-only routes exist.
 
 ## 5. Local Runtime Hooks
 
-```ts
-// features/support/hooks.ts (essentials)
-BeforeAll: 
-  execSync("wrangler d1 migrations apply DB --local")
-  devProc = spawn("wrangler", ["dev", "--port", "8787"]) // poll /health until 200
-Before:
-  await resetDb()          // delete+seed via a d1 execute against --local
-After / AfterAll:
-  await page?.close(); devProc.kill()
+```python
+# features/conftest.py (essentials)
+@pytest.fixture(scope="session", autouse=True)
+def server():
+    # Apply migrations
+    subprocess.run(["uv", "run", "pywrangler", "d1", "migrations", "apply", "DB", "--local"])
+    # Start dev server
+    proc = subprocess.Popen(["uv", "run", "pywrangler", "dev", "--port", "8787"])
+    _wait_for_health("http://localhost:8787/health")
+    yield
+    proc.terminate()
 ```
 
-Rule: tests run against **workerd**, never a Node shim — runtime parity is the point.
+Before each scenario:
+```python
+@pytest.fixture(autouse=True)
+def reset_db():
+    subprocess.run(
+        ["uv", "run", "pywrangler", "d1", "execute", "DB", "--local",
+         "--command", "DELETE FROM items;"]
+    )
+```
+
+Rule: tests run against **workerd**, never a Python shim — runtime parity is the point.
 
 ## 6. CI/CD — `.github/workflows/ci-cd.yml`
 
@@ -122,15 +121,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
-        with: { node-version: 22, cache: pnpm }
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm exec biome ci .
-      - run: pnpm run typecheck
-      - run: pnpm exec playwright install --with-deps chromium
+      - uses: astral-sh/setup-uv@v5
+        with:
+          version: "latest"
+          enable-cache: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: "pip"
+      - run: uv sync
+      - run: uv run ruff check src/ features/
+      - run: uv run pyright
+      - run: uv run playwright install --with-deps chromium
       - run: echo "SESSION_SECRET=test-secret-do-not-use-in-prod" > .dev.vars
-      - run: pnpm test
+      - run: uv run pytest
 
   deploy:
     needs: quality
@@ -138,23 +142,29 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
-        with: { node-version: 22, cache: pnpm }
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm exec wrangler d1 migrations apply DB --remote
+      - uses: astral-sh/setup-uv@v5
+        with:
+          version: "latest"
+          enable-cache: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: "pip"
+      - run: uv sync
+      - run: uv run pywrangler d1 migrations apply DB --remote
         env: { CLOUDFLARE_API_TOKEN: "${{ secrets.CLOUDFLARE_API_TOKEN }}" }
-      - run: pnpm exec wrangler deploy
+      - run: uv run pywrangler deploy
         env: { CLOUDFLARE_API_TOKEN: "${{ secrets.CLOUDFLARE_API_TOKEN }}" }
 ```
 
 ## 7. Definition of Done (agent self-check before declaring complete)
 
-1. `pnpm run check` — zero diagnostics.
-2. `pnpm run typecheck` — zero errors.
-3. `pnpm test` — 100% scenarios green against `wrangler dev`.
-4. Feature file exists and predates the implementation (BDD gate).
-5. Docs updated: `CODEMAP.md` entry + PRD endpoint matrix row (principle #4).
-6. If all green → extract skill per `.opencode/skills/memory_manager.md`.
-7. **PR created** per `.opencode/skills/pr-creation.md` — PR body includes all BDD
+1. `uv run ruff check src/ features/` — zero diagnostics.
+2. `uv run ruff format --check src/ features/` — zero formatting issues.
+3. `uv run pyright` — zero errors.
+4. `uv run pytest` — 100% scenarios green against `pywrangler dev`.
+5. Feature file exists and predates the implementation (BDD gate).
+6. Docs updated: `CODEMAP.md` entry + PRD endpoint matrix row (principle #4).
+7. If all green → extract skill per `.opencode/skills/memory_manager.md`.
+8. **PR created** per `.opencode/skills/pr-creation.md` — PR body includes all BDD
    proof, check-in notes, and self-correction ledger entries.
