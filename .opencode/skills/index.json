@@ -36,6 +36,26 @@
       "triggers": ["pull request", "pr", "merge", "review", "ship", "submit code"],
       "file": ".opencode/skills/pr-creation.md",
       "status": "proven"
+    },
+    "gh-axi": {
+      "triggers": ["github", "pr", "issue", "pull request", "ci", "workflow", "release"],
+      "file": ".opencode/skills/gh-axi/SKILL.md",
+      "status": "proven"
+    },
+    "tasks-axi": {
+      "triggers": ["backlog", "task", "todo", "plan", "blocked", "ready queue"],
+      "file": ".opencode/skills/tasks-axi/SKILL.md",
+      "status": "proven"
+    },
+    "grill-with-docs": {
+      "triggers": ["plan", "design review", "architecture decision", "adr", "glossary", "interview"],
+      "file": ".opencode/skills/grill-with-docs/SKILL.md",
+      "status": "proven"
+    },
+    "workers-best-practices": {
+      "triggers": ["worker review", "best practice", "anti-pattern", "wrangler config", "bindings", "observability", "floating promise"],
+      "file": ".opencode/skills/workers-best-practices/SKILL.md",
+      "status": "seed"
     }
   },
   "meta": {
