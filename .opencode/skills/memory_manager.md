@@ -46,8 +46,8 @@ Rules of the ledger:
 ## Trigger 4 — CODEMAP maintenance (fires in Phase 4 of every task)
 
 `CODEMAP.md` mirrors the source tree: one line per file — path, purpose, exported
-symbols, routes served. It exists so future sessions NEVER crawl the codebase
-(principle #3). Stale CODEMAP = defect, same severity as a failing test.
+symbols, routes served. It exists so future sessions NEVER crawl the codebase. 
+Stale CODEMAP = defect, same severity as a failing test.
 
 ## Prime Directive
 Memory exists to save tokens and prevent repeated mistakes. If a memory operation

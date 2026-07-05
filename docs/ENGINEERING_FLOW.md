@@ -7,7 +7,7 @@
 
 Before Phase 1 the agent must:
 1. **Adopt the persona** for the task (e.g., "Hypermedia backend engineer", "BDD test
-   engineer") and state it in one line (principle #9).
+   engineer") and state it in one line.
 2. **Create an isolated worktree** via treehouse (`kunchenguid/treehouse`) — one task,
    one worktree, one branch: `tree <task-slug>` (or documented fallback
    `git worktree add ../<repo>-<task-slug> -b <task-slug>` if treehouse is unavailable).
@@ -30,7 +30,7 @@ Phase 4: VERIFY     → full gate, self-repair ≤3, refactor, docs, skill extra
 > (a) affected D1 tables + exact migration SQL if any, (b) each new/changed route as a
 > PRD §4 endpoint-matrix row, (c) fragment names and their hx-target/hx-swap strategy,
 > (d) the htmx-vs-Alpine ownership for each interaction, (e) points of failure and their
-> error handling (principle #10). Then write or update the `.feature` file. You may not
+> error handling. Then write or update the `.feature` file. You may not
 > create or modify any `.ts`/`.tsx`/`.sql` file in this phase.
 
 **Gate:** plan printed + `.feature` committed. Schema-breaking change detected here →
@@ -52,7 +52,7 @@ human check-in (see §3) before proceeding.
 > migration → `src/schemas/` (Zod) → `src/db/` (query fn) → `src/views/fragments/` →
 > `src/routes/`. Re-run `pnpm test` after each scenario turns green. Prefer vetted
 > existing libraries over hand-rolled code, but adding ANY new dependency requires
-> human approval first (principle #7). Never edit test assertions to make them pass.
+> human approval first. Never edit test assertions to make them pass.
 
 **Gate:** all scenarios green locally against `wrangler dev`.
 
@@ -95,7 +95,7 @@ Also: append the failure→fix pair to .opencode/skills/lessons.md (Self-Correct
 - Migration that alters/drops existing tables or columns, or any data-loss risk.
 - CPU-time errors (exceeded 10ms) or any Cloudflare limit breach.
 - Adding a dependency, external service, or new binding (D1/KV/queue).
-- Anything uncertain, seemingly wrong, or with a clearly better alternative (principle #8).
+- Anything uncertain, seemingly wrong, or with a clearly better alternative.
 - Auth/session/cookie semantics changes.
 
 **MUST NOT ask (handle autonomously):**

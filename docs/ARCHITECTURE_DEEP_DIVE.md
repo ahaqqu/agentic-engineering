@@ -111,7 +111,7 @@ Design budget: **≤ 5ms CPU** per request. Enforcement patterns:
 - ❌ Skip the `HX-Request` branch (breaks deep links) or swap more DOM than targeted.
 - ❌ Write `ALTER TABLE`/`DROP` migrations without human review (see ENGINEERING_FLOW §check-ins).
 - ❌ Hand-write code a vetted library already provides — but ask the human before adding
-  any new dependency (principle #7).
+  any new dependency.
 
 ## 7. Free-Tier Budget Sheet (design-time constraints)
 

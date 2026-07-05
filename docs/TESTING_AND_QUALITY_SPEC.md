@@ -1,7 +1,6 @@
 # TESTING_AND_QUALITY_SPEC.md
 
-> The single quality gate. BDD acceptance tests are the ONLY tests (principle: AI does
-> not write unit tests — verification is based on real value delivered). Formatting and
+> The single quality gate. BDD acceptance tests are the ONLY tests. Formatting and
 > types are enforced by tools, never by hand.
 
 ## 1. Toolchain
@@ -164,7 +163,7 @@ jobs:
 3. `uv run pyright` — zero errors.
 4. `uv run pytest` — 100% scenarios green against `pywrangler dev`.
 5. Feature file exists and predates the implementation (BDD gate).
-6. Docs updated: `CODEMAP.md` entry + PRD endpoint matrix row (principle #4).
+6. Docs updated: `CODEMAP.md` entry + PRD endpoint matrix row.
 7. If all green → extract skill per `.opencode/skills/memory_manager.md`.
 8. **PR created** per `.opencode/skills/pr-creation.md` — PR body includes all BDD
    proof, check-in notes, and self-correction ledger entries.
