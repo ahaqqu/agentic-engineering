@@ -42,6 +42,7 @@ def wait_for_health(url: str, timeout: int = 90):
 @pytest.fixture(scope="session")
 def event_loop():
     import asyncio
+
     loop = asyncio.new_event_loop()
     yield loop
     loop.close()
@@ -50,14 +51,14 @@ def event_loop():
 @pytest.fixture(scope="session", autouse=True)
 def server():
     subprocess.run(
-        [".venv/bin/uv", "run", "pywrangler", "d1", "migrations", "apply", "DB", "--local"],
+        ["uv", "run", "pywrangler", "d1", "migrations", "apply", "DB", "--local"],
         cwd=PROJECT_ROOT,
         capture_output=True,
         text=True,
         timeout=60,
     )
     proc = subprocess.Popen(
-        [".venv/bin/uv", "run", "pywrangler", "dev", "--port", str(BASE_PORT)],
+        ["uv", "run", "pywrangler", "dev", "--port", str(BASE_PORT)],
         cwd=PROJECT_ROOT,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
@@ -74,8 +75,17 @@ def server():
 @pytest.fixture(autouse=True)
 def reset_db():
     subprocess.run(
-        [".venv/bin/uv", "run", "pywrangler", "d1", "execute", "DB", "--local",
-         "--command", "DELETE FROM items;"],
+        [
+            "uv",
+            "run",
+            "pywrangler",
+            "d1",
+            "execute",
+            "DB",
+            "--local",
+            "--command",
+            "DELETE FROM items;",
+        ],
         cwd=PROJECT_ROOT,
         capture_output=True,
         text=True,
@@ -132,9 +142,7 @@ def create_item(title, ctx):
             "Content-Type": "application/json",
         },
     )
-    assert resp.status_code == 201, (
-        f"create item failed: {resp.status_code} {resp.text}"
-    )
+    assert resp.status_code == 201, f"create item failed: {resp.status_code} {resp.text}"
     match = re.search(r'id="item-(\d+)"', resp.text)
     if match:
         ctx.setdefault("item_ids", {})
@@ -178,9 +186,7 @@ def check_element(selector, ctx):
         val = raw_val.strip("'\"")
         assert f'{name}="{val}"' in html or f"{name}='{val}'" in html
     else:
-        assert selector in html, (
-            f"expected {selector} not found in:\n{html}"
-        )
+        assert selector in html, f"expected {selector} not found in:\n{html}"
 
 
 @when("I open the items page")
@@ -188,14 +194,16 @@ async def open_items_page(ctx, browser, page):
     _ = browser
     cookie_val = ctx.get("cookie")
     if cookie_val:
-        await page.context.add_cookies([
-            {
-                "name": "session",
-                "value": cookie_val,
-                "domain": "localhost",
-                "path": "/",
-            }
-        ])
+        await page.context.add_cookies(
+            [
+                {
+                    "name": "session",
+                    "value": cookie_val,
+                    "domain": "localhost",
+                    "path": "/",
+                }
+            ]
+        )
     await page.goto(BASE_URL)
 
 
@@ -212,9 +220,7 @@ async def check_badge(title, page):
     badge = row.locator("span.badge")
     await badge.wait_for(state="visible", timeout=10_000)
     text = await badge.text_content()
-    assert text and "archived" in text, (
-        f'expected archived badge for "{title}", got "{text}"'
-    )
+    assert text and "archived" in text, f'expected archived badge for "{title}", got "{text}"'
 
 
 @then("the page did not perform a full navigation")

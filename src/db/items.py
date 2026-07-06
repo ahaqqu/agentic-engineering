@@ -20,19 +20,27 @@ class DB:
         ).bind(user_sub)
         result = await stmt.all()
         items = []
-        for row in (result.results or []):
-            items.append(Item(id=row["id"], title=row["title"], done=bool(row["done"]), archived=bool(row["archived"])))
+        for row in result.results or []:
+            items.append(
+                Item(
+                    id=row["id"],
+                    title=row["title"],
+                    done=bool(row["done"]),
+                    archived=bool(row["archived"]),
+                )
+            )
         return items
 
     async def create(self, user_sub: str, title: str) -> Item | None:
         stmt = self._d1.prepare(
-            "INSERT INTO items (user_id, title) VALUES (?, ?) "
-            "RETURNING id, title, done, archived"
+            "INSERT INTO items (user_id, title) VALUES (?, ?) RETURNING id, title, done, archived"
         ).bind(user_sub, title)
         row = await stmt.first()
         if not row:
             return None
-        return Item(id=row["id"], title=row["title"], done=bool(row["done"]), archived=bool(row["archived"]))
+        return Item(
+            id=row["id"], title=row["title"], done=bool(row["done"]), archived=bool(row["archived"])
+        )
 
     async def toggle_archive(self, item_id: int, user_sub: str) -> Item | None:
         stmt = self._d1.prepare(
@@ -43,4 +51,6 @@ class DB:
         row = await stmt.first()
         if not row:
             return None
-        return Item(id=row["id"], title=row["title"], done=bool(row["done"]), archived=bool(row["archived"]))
+        return Item(
+            id=row["id"], title=row["title"], done=bool(row["done"]), archived=bool(row["archived"])
+        )

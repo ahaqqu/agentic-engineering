@@ -58,7 +58,9 @@ def make_payload(sub: str, email: str, name: str) -> dict:
 def _get_secret(request: Request) -> str:
     try:
         return request.scope["env"].SESSION_SECRET or "insecure-dev-default"
-    except (AttributeError, KeyError):
+    except AttributeError:
+        return "insecure-dev-default"
+    except KeyError:
         return "insecure-dev-default"
 
 
