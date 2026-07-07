@@ -27,6 +27,8 @@ memory + verified FastAPI/Python app skeleton for a suite of Cloudflare Workers 
 | features/steps/test_items_archive.py | pytest-bdd step definitions: API + UI steps |
 | features/template_defects.feature | BDD feature: Pydantic validation on create + additive migration safety |
 | features/steps/test_template_defects.py | pytest-bdd step definitions: create-item validation + migration smoke test |
+| features/workflow.feature | BDD feature: workflow scripts exist and pytest markers are registered |
+| features/steps/test_workflow.py | pytest-bdd step definitions: file-existence, exit-code, marker-listing steps |
 | features/conftest.py | pytest fixtures: pywrangler dev lifecycle, DB reset, Playwright browsers, signed cookies; uses `uv` from PATH |
 | public/htmx.min.js | Self-hosted htmx 2.x (no CDN dependency for Capacitor offline) |
 | public/app.css | Application stylesheet (placeholder) |
@@ -46,6 +48,9 @@ memory + verified FastAPI/Python app skeleton for a suite of Cloudflare Workers 
 | AGENTS.md | Core directives gate, loaded every session (<900 tokens) |
 | CODEMAP.md | This map; replaces codebase crawling |
 | scripts/deploy.sh | Quality-gated e2e deploy: gates → D1 → pywrangler → health |
+| scripts/bootstrap-worktree.sh | Copies .dev.vars from main checkout to a new git worktree |
+| scripts/ensure-wrangler.sh | Checks/upgrades global wrangler to the minimum required version |
+| scripts/test.sh | Single-command gate: wrangler check → kill stale servers → ruff → pyright → pytest |
 | .opencode/skills/index.json | Lazy-load map: task archetype → skill file |
 | .opencode/skills/template_blueprint.md | Mandatory structure for extracted skills |
 | .opencode/skills/memory_manager.md | Hermes loop: extraction, compaction, ledger, CODEMAP upkeep |

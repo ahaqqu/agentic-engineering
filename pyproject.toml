@@ -37,6 +37,10 @@ typeCheckingMode = "standard"
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 testpaths = ["features"]
+markers = [
+    "api: API-level integration scenarios",
+    "ui: UI scenarios that require a Playwright browser",
+]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/"]
