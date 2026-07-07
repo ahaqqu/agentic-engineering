@@ -12,7 +12,7 @@ memory + verified FastAPI/Python app skeleton for a suite of Cloudflare Workers 
 |---|---|
 | src/entry.py | Python Worker entrypoint: WorkerEntrypoint → asgi.fetch(app, request, env) |
 | src/app.py | FastAPI app: middleware, dependencies, route mounting |
-| src/routes/items.py | `POST /items`, `POST /items/{item_id}/archive` — item CRUD + archive toggle |
+| src/routes/items.py | `POST /items` (Pydantic `ItemCreateBody`), `POST /items/{item_id}/archive` — item CRUD + archive toggle |
 | src/lib/session.py | HMAC-SHA256 signed-cookie tokens, session middleware, require_session dependency |
 | src/lib/csrf.py | Origin-check CSRF dependency for mutation routes |
 | src/db/items.py | D1 query helpers: Item model, typed query functions with owner filters |
@@ -21,11 +21,15 @@ memory + verified FastAPI/Python app skeleton for a suite of Cloudflare Workers 
 | src/templates/layout.html | Full-page shell: DOCTYPE, htmx script, title, includes item_list |
 | src/templates/item_list.html | `<ul id="item-list">` loop over items, renders item_row |
 | src/templates/item_row.html | Single `<li>` fragment with archive button, hx-post swap target |
-| migrations/0001_init.sql | Items table (user_id, title, done, archived) |
-| migrations/0002_items_archived.sql | Fix: removed FK constraint (auth is session-based) |
+| migrations/0001_init.sql | Items table (user_id, title, done) |
+| migrations/0002_items_archived.sql | Additive migration: items gain `archived INTEGER NOT NULL DEFAULT 0` |
 | features/items_archive.feature | BDD feature: archive toggle, auth guards, refresh survival |
 | features/steps/test_items_archive.py | pytest-bdd step definitions: API + UI steps |
-| features/conftest.py | pytest fixtures: pywrangler dev lifecycle, DB reset, Playwright browsers, signed cookies |
+| features/template_defects.feature | BDD feature: Pydantic validation on create + additive migration safety |
+| features/steps/test_template_defects.py | pytest-bdd step definitions: create-item validation + migration smoke test |
+| features/workflow.feature | BDD feature: workflow scripts exist and pytest markers are registered |
+| features/steps/test_workflow.py | pytest-bdd step definitions: file-existence, exit-code, marker-listing steps |
+| features/conftest.py | pytest fixtures: pywrangler dev lifecycle, DB reset, Playwright browsers, signed cookies; uses `uv` from PATH |
 | public/htmx.min.js | Self-hosted htmx 2.x (no CDN dependency for Capacitor offline) |
 | public/app.css | Application stylesheet (placeholder) |
 
@@ -44,6 +48,9 @@ memory + verified FastAPI/Python app skeleton for a suite of Cloudflare Workers 
 | AGENTS.md | Core directives gate, loaded every session (<900 tokens) |
 | CODEMAP.md | This map; replaces codebase crawling |
 | scripts/deploy.sh | Quality-gated e2e deploy: gates → D1 → pywrangler → health |
+| scripts/bootstrap-worktree.sh | Copies .dev.vars from main checkout to a new git worktree |
+| scripts/ensure-wrangler.sh | Checks/upgrades global wrangler to the minimum required version |
+| scripts/test.sh | Single-command gate: wrangler check → kill stale servers → ruff → pyright → pytest |
 | .opencode/skills/index.json | Lazy-load map: task archetype → skill file |
 | .opencode/skills/template_blueprint.md | Mandatory structure for extracted skills |
 | .opencode/skills/memory_manager.md | Hermes loop: extraction, compaction, ledger, CODEMAP upkeep |
